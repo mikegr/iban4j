@@ -15,12 +15,25 @@
  */
 package org.iban4j;
 
+import org.iban4j.support.ExceptionUtil;
+
 /**
  * Thrown to indicate that requested country is not supported.
  */
-public class UnsupportedCountryException extends RuntimeException {
+public class UnsupportedCountryException extends Iban4jException {
 
     private static final long serialVersionUID = -5193286194898199366L;
+
+    private Constraint constraint;
+    private Object[] values;
+
+    public Constraint getConstraint() {
+        return constraint;
+    }
+
+    public Object[] getValues() {
+        return values;
+    }
 
     /**
      * Constructs a <code>UnsupportedCountryException</code> with no detail message and cause.
@@ -31,12 +44,15 @@ public class UnsupportedCountryException extends RuntimeException {
 
     /**
      * Constructs a <code>UnsupportedCountryException</code> with the
-     * specified detail message.
+     * specified details
      *
-     * @param s the detail message.
+     * @param c the contraint
+     * @param values additional information
      */
-    public UnsupportedCountryException(final String s) {
-        super(s);
+    public UnsupportedCountryException(final Constraint c, Object...values) {
+        super(getMessage(c, values));
+        this.constraint = c;
+        this.values = values;
     }
 
     /**
@@ -58,5 +74,22 @@ public class UnsupportedCountryException extends RuntimeException {
      */
     public UnsupportedCountryException(final Throwable t) {
         super(t);
+    }
+
+    public static enum Constraint {
+        is_null,
+        upper_case,
+        not_supported,
+        non_existing
+    }
+
+    public static String getMessage(Constraint c, Object[] values) {
+        switch(c) {
+            case is_null: return "countryCode is required; it cannot be null";
+            case upper_case: return "Iban country code must contain upper case letters";
+            case non_existing: return "Iban contains non existing country code.";
+            case not_supported: return "Country code: " + ExceptionUtil.getValue(values, 0)  + " is not supported.";
+        }
+        return "Unknown constraint";
     }
 }

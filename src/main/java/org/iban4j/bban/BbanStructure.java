@@ -18,8 +18,9 @@ package org.iban4j.bban;
 import org.iban4j.CountryCode;
 import org.iban4j.UnsupportedCountryException;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
-
+import java.util.List;
 
 /**
  * Class which represents bban structure
@@ -417,9 +418,8 @@ public class BbanStructure {
      */
     public static BbanStructure forCountry(final CountryCode countryCode) {
         BbanStructure structure = structures.get(countryCode);
-
         if (structure == null) {
-            throw new UnsupportedCountryException("Country code: " + countryCode + " is not supported.");
+            throw new UnsupportedCountryException(UnsupportedCountryException.Constraint.not_supported, countryCode);
         }
         return structure;
     }
@@ -449,4 +449,15 @@ public class BbanStructure {
                 "rawStructure='" + "TODO" +
                 '}';
     }
+
+    public List<BbanStructureEntry.EntryCharacterType> generateCharacterTypeList() {
+        ArrayList<BbanStructureEntry.EntryCharacterType> list = new ArrayList<BbanStructureEntry.EntryCharacterType>();
+        for(BbanStructureEntry entry:getEntries()) {
+            for(int i = 0; i < entry.getLength(); i++) {
+                list.add(entry.getCharacterType());
+            }
+        }
+        return list;
+    }
+
 }

@@ -66,7 +66,7 @@ public class IbanUtilTest {
             this.invalidCharacter = invalidCharacter;
         }
 
-        @Test(expected = IllegalArgumentException.class)
+        @Test(expected = IbanFormatException.class)
         public void checkDigitCalculationWithNonNumericBbanShouldThrowException() {
 
             IbanUtil.calculateCheckDigit("AT000159260" + invalidCharacter + "076545510730339");
@@ -94,14 +94,14 @@ public class IbanUtilTest {
 
         @Test
         public void ibanValidationWithLowercaseCountryShouldThrowException() {
-            expectedException.expect(IbanFormatException.class);
+            expectedException.expect(UnsupportedCountryException.class);
             expectedException.expectMessage(containsString("Iban country code must contain upper case letters"));
             IbanUtil.validate("at611904300234573201");
         }
 
         @Test
         public void ibanValidationWithEmptyCountryShouldThrowException() {
-            expectedException.expect(IbanFormatException.class);
+            expectedException.expect(UnsupportedCountryException.class);
             expectedException.expectMessage(containsString("Iban country code must contain upper case letters"));
             IbanUtil.validate(" _611904300234573201");
         }
@@ -113,7 +113,7 @@ public class IbanUtilTest {
 
         @Test
         public void ibanValidationWithNonExistingCountryShouldThrowException() {
-            expectedException.expect(IbanFormatException.class);
+            expectedException.expect(UnsupportedCountryException.class);
             expectedException.expectMessage(containsString("Iban contains non existing country code"));
             IbanUtil.validate("JJ611904300234573201");
         }
@@ -126,14 +126,14 @@ public class IbanUtilTest {
         @Test
         public void ibanValidationWithInvalidLengthShouldThrowException() {
             expectedException.expect(IbanFormatException.class);
-            expectedException.expectMessage(containsString("Iban length can't be less than"));
+            expectedException.expectMessage(containsString("expected length is:"));
             IbanUtil.validate("AT621904300");
         }
 
         @Test
         public void ibanValidationWithInvalidBbanLengthShouldThrowException() {
             expectedException.expect(IbanFormatException.class);
-            expectedException.expectMessage(containsString("expected BBAN length is:"));
+            expectedException.expectMessage(containsString("expected length is:"));
             IbanUtil.validate("AT61190430023457320");
         }
 

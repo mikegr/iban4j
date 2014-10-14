@@ -17,7 +17,15 @@ package org.iban4j;
 
 import org.iban4j.bban.BbanStructure;
 import org.iban4j.bban.BbanStructureEntry;
-import org.iban4j.support.Assert;
+import static org.iban4j.IbanFormatException.Constraint.assert_msg_digits;
+import static org.iban4j.IbanFormatException.Constraint.assert_msg_digits_and_letters;
+import static org.iban4j.IbanFormatException.Constraint.assert_msg_upper_letters;
+import static org.iban4j.IbanFormatException.Constraint.invalid_character;
+import static org.iban4j.IbanFormatException.Constraint.invalid_length;
+import static org.iban4j.IbanFormatException.Constraint.is_null;
+import static org.iban4j.IbanFormatException.Constraint.unknown;
+import static org.iban4j.UnsupportedCountryException.Constraint.non_existing;
+import static org.iban4j.UnsupportedCountryException.Constraint.upper_case;
 
 /**
  * Iban Utility Class
@@ -34,13 +42,6 @@ public final class IbanUtil {
     private static final int CHECK_DIGIT_INDEX = COUNTRY_CODE_LENGTH;
     private static final int CHECK_DIGIT_LENGTH = 2;
     private static final int BBAN_INDEX = CHECK_DIGIT_INDEX + CHECK_DIGIT_LENGTH;
-
-    private static final String ASSERT_UPPER_LETTERS = "[%s] must contain only upper case letters.";
-    private static final String ASSERT_DIGITS_AND_LETTERS = "[%s] must contain only digits or letters.";
-    private static final String ASSERT_DIGITS = "[%s] must contain only digits.";
-
-    private IbanUtil() {
-    }
 
     /**
      * Calculates Iban
@@ -69,7 +70,7 @@ public final class IbanUtil {
             InvalidCheckDigitException, UnsupportedCountryException {
 
         try {
-            Assert.notNull(iban, "Null can't be a valid Iban.");
+            if (iban == null) throw new IbanFormatException(is_null);
             validateCountryCode(iban);
             validateMinLength(iban);
 
@@ -79,12 +80,10 @@ public final class IbanUtil {
             validateBbanEntries(iban, structure);
 
             validateCheckDigit(iban);
-        } catch (UnsupportedCountryException e) {
-            throw e;
-        } catch (InvalidCheckDigitException e) {
+        } catch (Iban4jException e) {
             throw e;
         } catch (RuntimeException e) {
-            throw new IbanFormatException(e.getMessage());
+            throw new IbanFormatException(unknown, e);
         }
     }
 
@@ -92,26 +91,26 @@ public final class IbanUtil {
         String checkDigit = getCheckDigit(iban);
         String expectedCheckDigit = calculateCheckDigit(iban);
         if (!checkDigit.equals(expectedCheckDigit)) {
-            throw new InvalidCheckDigitException("[" + iban + "] has invalid check digit: " +
-                    checkDigit + ", expected check digit is: " + expectedCheckDigit);
+            throw new InvalidCheckDigitException(iban, checkDigit, expectedCheckDigit);
         }
     }
 
-    private static void validateCountryCode(final String iban) {
+    public static void validateCountryCode(final String iban) {
         String countryCode = getCountryCode(iban);
         if( countryCode.trim().length() < COUNTRY_CODE_LENGTH ||
             !countryCode.equals(countryCode.toUpperCase()) ||
             !Character.isLetter(countryCode.charAt(0)) ||
             !Character.isLetter(countryCode.charAt(1))) {
-            throw new IbanFormatException("Iban country code must contain upper case letters");
+            throw new UnsupportedCountryException(upper_case, countryCode);
         }
-
-        Assert.notNull(CountryCode.getByCode(countryCode), "Iban contains non existing country code.");
+        if (CountryCode.getByCode(countryCode) == null) {
+            throw new UnsupportedCountryException(non_existing, countryCode);
+        }
     }
 
     private static void validateMinLength(final String iban) {
         if(iban.length() < MIN_IBAN_SIZE) {
-            throw new IbanFormatException("Iban length can't be less than " + MIN_IBAN_SIZE);
+            throw new IbanFormatException(invalid_length, iban, iban.length(), MIN_IBAN_SIZE);
         }
     }
 
@@ -120,10 +119,10 @@ public final class IbanUtil {
         String bban = getBban(iban);
         int bbanLength = bban.length();
         if (expectedBbanLength != bbanLength) {
-            throw new IbanFormatException("[" + bban + "] length is " +
-                    bbanLength + ", expected BBAN length is: " + expectedBbanLength);
+            throw new IbanFormatException(invalid_length, bban, bbanLength, expectedBbanLength);
         }
     }
+
 
     private static void validateBbanEntries(final String iban, final BbanStructure structure) {
         final String bban = getBban(iban);
@@ -143,17 +142,17 @@ public final class IbanUtil {
         switch (entry.getCharacterType()) {
             case a:
                 for(char ch: entryValue.toCharArray()) {
-                    Assert.isTrue(Character.isUpperCase(ch), ASSERT_UPPER_LETTERS, entryValue);
+                    if (! Character.isUpperCase(ch)) throw new IbanFormatException(assert_msg_upper_letters, entryValue);
                 }
                 break;
             case c:
                 for(char ch: entryValue.toCharArray()) {
-                    Assert.isTrue(Character.isLetterOrDigit(ch), ASSERT_DIGITS_AND_LETTERS, entryValue);
+                    if (! Character.isLetterOrDigit(ch)) throw new IbanFormatException(assert_msg_digits_and_letters, entryValue);
                 }
                 break;
             case n:
                 for(char ch: entryValue.toCharArray()) {
-                    Assert.isTrue(Character.isDigit(ch), ASSERT_DIGITS, entryValue);
+                    if (! Character.isDigit(ch)) throw new IbanFormatException(assert_msg_digits, entryValue);
                 }
                 break;
         }
@@ -187,7 +186,7 @@ public final class IbanUtil {
         for (int i = 0; i < reformattedIban.length(); i++) {
             int numericValue = Character.getNumericValue(reformattedIban.charAt(i));
             if (numericValue < 0 || numericValue > 35) {
-                throw new IllegalArgumentException("Invalid Character[" + i + "] = '" + numericValue + "'");
+                throw new IbanFormatException(invalid_character, i, numericValue);
             }
             total = (numericValue > 9 ? total * 100 : total * 10) + numericValue;
 
@@ -208,7 +207,7 @@ public final class IbanUtil {
         return iban.substring(CHECK_DIGIT_INDEX, CHECK_DIGIT_INDEX + CHECK_DIGIT_LENGTH);
     }
 
-    protected static String getCountryCode(final String iban) {
+    public static String getCountryCode(final String iban) {
         return iban.substring(COUNTRY_CODE_INDEX, COUNTRY_CODE_INDEX + COUNTRY_CODE_LENGTH);
     }
 
@@ -216,7 +215,7 @@ public final class IbanUtil {
         return iban.substring(COUNTRY_CODE_INDEX, COUNTRY_CODE_INDEX + COUNTRY_CODE_LENGTH + CHECK_DIGIT_LENGTH);
     }
 
-    protected static String getBban(final String iban) {
+    public static String getBban(final String iban) {
         return iban.substring(BBAN_INDEX);
     }
 
@@ -263,5 +262,6 @@ public final class IbanUtil {
         }
         return null;
     }
+
 
 }

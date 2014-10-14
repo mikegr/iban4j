@@ -20,10 +20,14 @@ import java.io.Serializable;
 /**
  * Thrown to indicate that Iban's check digit is invalid
  */
-public class InvalidCheckDigitException extends RuntimeException {
+public class InvalidCheckDigitException extends Iban4jException {
 
 
     private static final long serialVersionUID = -9193946653023753090L;
+
+    private String iban;
+    private String invalid;
+    private String expected;
 
     /**
      * Constructs a <code>InvalidCheckDigitException</code> with no detail message.
@@ -34,12 +38,17 @@ public class InvalidCheckDigitException extends RuntimeException {
 
     /**
      * Constructs a <code>InvalidCheckDigitException</code> with the
-     * specified detail message.
+     * specified details
      *
-     * @param s the detail message.
+     * @param iban tested iban
+     * @param invalid invalid check digits in tested iban
+     * @param expected expected check digits
      */
-    public InvalidCheckDigitException(final String s) {
-        super(s);
+    public InvalidCheckDigitException(final String iban, String invalid, String expected) {
+        super(getMessage(iban, invalid, expected));
+        this.iban = iban;
+        this.invalid = invalid;
+        this.expected = expected;
     }
 
     /**
@@ -62,4 +71,22 @@ public class InvalidCheckDigitException extends RuntimeException {
     public InvalidCheckDigitException(final Throwable t) {
         super(t);
     }
+
+    public static String getMessage(String iban, String invalid, String expected) {
+        return iban + " has invalid check digit: " + invalid + ", expected check digit is: " + expected;
+    }
+
+    public String getIban() {
+        return iban;
+    }
+
+    public String getInvalid() {
+        return invalid;
+    }
+
+    public String getExpected() {
+        return expected;
+    }
+
+
 }

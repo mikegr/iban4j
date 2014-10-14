@@ -17,9 +17,9 @@ package org.iban4j;
 
 import org.iban4j.bban.BbanStructure;
 import org.iban4j.bban.BbanStructureEntry;
-import org.iban4j.support.Assert;
 
-import java.io.Serializable;
+import static org.iban4j.UnsupportedCountryException.Constraint.is_null;
+
 
 /**
  * International Bank Account Number
@@ -239,13 +239,12 @@ public final class Iban {
                 IllegalArgumentException, UnsupportedCountryException {
 
             // null checks
-            Assert.notNull(countryCode, "countryCode is required; it cannot be null");
-            Assert.notNull(bankCode, "bankCode is required; it cannot be null");
-            Assert.notNull(accountNumber, "accountNumber is required; it cannot be null");
+            if (countryCode == null) throw new UnsupportedCountryException(is_null);
+            if (bankCode == null) throw new IbanFormatException(IbanFormatException.Constraint.bank_code_required);
+            if (accountNumber == null) throw new IbanFormatException(IbanFormatException.Constraint.account_number_required);
 
             // iban is formatted with default check digit.
             String ibanValue = formatIban();
-
             final String checkDigit = IbanUtil.calculateCheckDigit(ibanValue);
 
             // replace default check digit with calculated check digit
