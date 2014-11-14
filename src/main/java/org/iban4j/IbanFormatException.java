@@ -76,8 +76,10 @@ public class IbanFormatException extends Iban4jException {
      *
      * @param s the detail message.
      */
-    public IbanFormatException(IbanFormatViolation violation, Object actual,
-                               Object expected, final String s) {
+    public IbanFormatException(final IbanFormatViolation violation,
+                               final Object actual,
+                               final Object expected,
+                               final String s) {
         super(s);
         this.expected = expected;
         this.actual = actual;
@@ -90,7 +92,9 @@ public class IbanFormatException extends Iban4jException {
      *
      * @param s the detail message.
      */
-    public IbanFormatException(IbanFormatViolation violation, Object actual, final String s) {
+    public IbanFormatException(final IbanFormatViolation violation,
+                               final Object actual,
+                               final String s) {
         super(s);
         this.actual = actual;
         this.formatViolation = violation;
@@ -120,7 +124,8 @@ public class IbanFormatException extends Iban4jException {
      *
      * @param s the detail message.
      */
-    public IbanFormatException(IbanFormatViolation violation, final String s) {
+    public IbanFormatException(final IbanFormatViolation violation,
+                               final String s) {
         super(s);
         this.formatViolation = violation;
     }
@@ -161,7 +166,11 @@ public class IbanFormatException extends Iban4jException {
         BBAN_LENGTH,
         BBAN_ONLY_DIGITS,
         BBAN_ONLY_UPPER_CASE_LETTERS,
-        BBAN_ONLY_DIGITS_OR_LETTERS
+        BBAN_ONLY_DIGITS_OR_LETTERS,
+
+        IBAN_COUNTRY_CODE_NOT_NULL,
+        IBAN_BANK_CODE_NOT_NULL,
+        IBAN_ACCOUNT_NUMBER_NOT_NULL
 
     }
 }

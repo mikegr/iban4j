@@ -395,8 +395,20 @@ public final class TestDataHelper {
                         .countryCode(CountryCode.VG)
                         .bankCode("VPVG")
                         .accountNumber("0000012345678901")
-                        .build(), "VG96VPVG0000012345678901"}
-
+                        .build(), "VG96VPVG0000012345678901"},
+                {new Iban.Builder()
+                        .countryCode(CountryCode.TL)
+                        .bankCode("008")
+                        .accountNumber("00123456789101")
+                        .nationalCheckDigit("57")
+                        .build(), "TL380080012345678910157"},
+                {new Iban.Builder()
+                        .countryCode(CountryCode.XK)
+                        .bankCode("10")
+                        .branchCode("00")
+                        .accountNumber("0000000000")
+                        .nationalCheckDigit("53")
+                        .build(), "XK051000000000000053"}
         });
     }
 

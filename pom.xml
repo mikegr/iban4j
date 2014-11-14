@@ -58,6 +58,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdkVersion>1.5</jdkVersion>
+        <jdk5Signature>java15</jdk5Signature>
         <skipSigning>true</skipSigning>
     </properties>
 
@@ -120,7 +121,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.6.3.201306030806</version>
+                <version>0.7.2.201409121644</version>
                 <executions>
                     <!--
                        Prepares the property pointing to the JaCoCo runtime agent which
@@ -155,7 +156,7 @@
                             <!-- Sets the path to the file which contains the execution data. -->
                             <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
                             <!-- Sets the output directory for the code coverage report. -->
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -175,6 +176,12 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <plugin>
+              <groupId>org.eluder.coveralls</groupId>
+              <artifactId>coveralls-maven-plugin</artifactId>
+              <version>3.0.1</version>
             </plugin>
 
             <!-- Generating Javadoc during verify phase -->
@@ -222,6 +229,29 @@
                 <version>2.4.2</version>
             </plugin>
 
+            <!-- Checking a project against API signatures  -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+                <version>1.11</version>
+                <executions>
+                    <execution>
+                        <id>check-java-api</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <signature>
+                                <groupId>org.codehaus.mojo.signature
+                                </groupId>
+                                <artifactId>${jdk5Signature}</artifactId>
+                                <version>1.0</version>
+                            </signature>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
         </plugins>
     </build>
