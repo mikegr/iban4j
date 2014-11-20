@@ -117,7 +117,7 @@ public class BicUtil {
         return bic.substring(BANK_CODE_INDEX, BANK_CODE_INDEX + BANK_CODE_LENGTH);
     }
 
-    static String getCountryCode(final String bic) {
+    public static String getCountryCode(final String bic) {
         return bic.substring(COUNTRY_CODE_INDEX, COUNTRY_CODE_INDEX + COUNTRY_CODE_LENGTH);
     }
 
