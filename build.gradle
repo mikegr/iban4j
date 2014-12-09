@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'com.android.tools.build:gradle:1.0.0'
     }
 }
 
@@ -15,7 +15,6 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "at.beeone.iban4android"
         minSdkVersion 15
         targetSdkVersion 19
         versionCode 1
@@ -23,7 +22,7 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
